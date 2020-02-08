@@ -14,7 +14,5 @@ def index():
 					id_salary=Category.query.get(add_form.salary.data))
 		db.session.add(name)
 		db.session.commit()
-		return redirect(url_for('main.index'))
-	if edit_form.validate_on_submit():
-		
-	return render_template('base.html')
+		return redirect(url_for('main.index'))`		
+	return render_template('base.html', add_form=add_form, edit_form=edit_form)
