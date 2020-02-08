@@ -13,9 +13,12 @@ class Work(db.Model):
 	id = db.Column(db.Integer, primary_key=True)
 	name = db.Column(db.String(64), unique=True)
 	id_salary = db.Column(db.Integer, db.ForeignKey('categories.id'))
+	names = db.relationship('Name', backref='name', lazy='dynamic')
 
 class Category(db.Model):
 	__tablename__ = 'categories'
 	id = db.Column(db.Integer, primary_key=True)
 	salary = db.Column(db.Integer)
+	names = db.relationship('Name', backref='name', lazy='dynamic')
+	works = db.relationship('Work', backref='work', lazy='dynamic')
 
