@@ -2,7 +2,7 @@ import json
 
 def return_profile():
 	"""Return author's bio"""
-	
+
 	profile = {
 		'name': 'Agus Richard Lubis',
 		'age': 22,
@@ -48,4 +48,5 @@ def return_profile():
 
 	return json.dumps(profile)
 
+# Testing
 print(return_profile())

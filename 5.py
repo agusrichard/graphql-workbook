@@ -17,3 +17,6 @@ def fibo(cols, rows):
 		for j in range(cols*i, cols*i+cols):
 			output_str += (str(fibo_seq[j]) + ', ')
 		print(output_str)
+
+# Testing
+fibo(4, 3) 
