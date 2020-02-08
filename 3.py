@@ -1,6 +1,6 @@
 def count_vowels(input_string):
-	"""Return number of vowels in a string"""
-	
+	"""Count the number of vowels in input_string"""
+
 	vowels = 'aeiou'
 	counter = 0
 	for vowel in vowels:

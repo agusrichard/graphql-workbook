@@ -1,4 +1,4 @@
-def fibonacci_sequence_generator(n_elements):
+def fibonacci_sequence(n_elements):
 	"""Return fibonacci sequence as a list"""
 
 	fibo_seq = [0, 1]
@@ -7,10 +7,11 @@ def fibonacci_sequence_generator(n_elements):
 
 	return fibo_seq
 
+
 def fibo(cols, rows):
 	"""Print fibonacci sequence in a row-column format"""
 
-	fibo_seq = fibonacci_sequence_generator(cols*rows)
+	fibo_seq = fibonacci_sequence(cols*rows)
 	for i in range(rows):
 		output_str = ""
 		for j in range(cols*i, cols*i+cols):
