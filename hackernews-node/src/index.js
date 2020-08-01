@@ -7,33 +7,42 @@ let links = [{
   description: 'Fullstack tutorial for GraphQL'
 }]
 
-const typeDefs = `
-  type Query {
-    info: String!
-    feed: [Link!]!
-  }
-
-  type Link {
-    id: ID!
-    description: String!
-    url: String!
-  }
-`
-
+let idCount = links.length
 const resolvers = {
   Query: {
     info: () => `This is the API of a Hackernews Clone`,
-    feed: () => links
+    feed: () => links,
+    link: (parent, args) => {
+      let found = links.filter(link => link.id === args.id)
+      console.log('found', found)
+      return found[0]
+    }
   },
-  Link: {
-    id: (parent) => parent.id,
-    description: (parent) => parent.description,
-    url: (parent) => parent.url
+  Mutation: {
+    post: (parent, args) => {
+      const link = {
+        url: args.url,
+        description: args.description,
+        id: `link-${idCount++}`
+      }
+      links.push(link)
+      return link
+    },
+    updateLink: (parent, args) => {
+      let found = links.filter(link => link.id === args.id)[0]
+      found.url = args.url || found.url
+      found.description = args.description || found.description
+      return found
+    },
+    deleteLink: (parent, args) => {
+      let others = links.filter(link => link.id !== args.id)
+      return links.filter(link => link.id === args.id)[0]
+    }
   }
 }
 
 const server = new GraphQLServer({
-  typeDefs,
+  typeDefs: './src/schema.graphql',
   resolvers
 })
 const port = process.env.PORT
