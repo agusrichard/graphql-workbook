@@ -1,49 +1,31 @@
 const { GraphQLServer } = require('graphql-yoga')
+const { PrismaClient } = require('@prisma/client')
+const Query = require('./resolvers/Query')
+const Mutation = require('./resolvers/Mutation')
+const User = require('./resolvers/User')
+const Link = require('./resolvers/Link')
+
 require('dotenv').config()
 
-let links = [{
-  id: 'link-0',
-  url: 'www.howtographql.com',
-  description: 'Fullstack tutorial for GraphQL'
-}]
 
-let idCount = links.length
 const resolvers = {
-  Query: {
-    info: () => `This is the API of a Hackernews Clone`,
-    feed: () => links,
-    link: (parent, args) => {
-      let found = links.filter(link => link.id === args.id)
-      console.log('found', found)
-      return found[0]
-    }
-  },
-  Mutation: {
-    post: (parent, args) => {
-      const link = {
-        url: args.url,
-        description: args.description,
-        id: `link-${idCount++}`
-      }
-      links.push(link)
-      return link
-    },
-    updateLink: (parent, args) => {
-      let found = links.filter(link => link.id === args.id)[0]
-      found.url = args.url || found.url
-      found.description = args.description || found.description
-      return found
-    },
-    deleteLink: (parent, args) => {
-      let others = links.filter(link => link.id !== args.id)
-      return links.filter(link => link.id === args.id)[0]
-    }
-  }
+  Query,
+  Mutation,
+  User,
+  Link
 }
+
+const prisma = new PrismaClient()
 
 const server = new GraphQLServer({
   typeDefs: './src/schema.graphql',
-  resolvers
+  resolvers,
+  context: request => {
+    return {
+      ...request,
+      prisma,
+    }
+  }
 })
 const port = process.env.PORT
 server.start({ port }, () => console.log('Server is running on port 8000'))
