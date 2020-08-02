@@ -1,9 +1,11 @@
-const { GraphQLServer } = require('graphql-yoga')
+const { GraphQLServer, PubSub } = require('graphql-yoga')
 const { PrismaClient } = require('@prisma/client')
 const Query = require('./resolvers/Query')
 const Mutation = require('./resolvers/Mutation')
+const Subscription = require('./resolvers/Subscription')
 const User = require('./resolvers/User')
 const Link = require('./resolvers/Link')
+const Vote = require('./resolvers/Vote')
 
 require('dotenv').config()
 
@@ -11,11 +13,14 @@ require('dotenv').config()
 const resolvers = {
   Query,
   Mutation,
+  Subscription,
   User,
-  Link
+  Link,
+  Vote
 }
 
 const prisma = new PrismaClient()
+const pubsub = new PubSub()
 
 const server = new GraphQLServer({
   typeDefs: './src/schema.graphql',
@@ -24,6 +29,7 @@ const server = new GraphQLServer({
     return {
       ...request,
       prisma,
+      pubsub
     }
   }
 })

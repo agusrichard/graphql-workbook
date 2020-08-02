@@ -3,7 +3,13 @@ function info() {
 }
 
 async function feed(parent, args, context, info) {
-  return await context.prisma.link.findMany()
+  const where = args.filter ? {
+    OR: [
+      { description: { contains: args.filter} },
+      { url: { contains: args.filter } }
+    ]
+  } : {}
+  return await context.prisma.link.findMany({ where })
 }
 
 async function link(parent, args, context, info) {
