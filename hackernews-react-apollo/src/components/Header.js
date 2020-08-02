@@ -6,10 +6,13 @@ function Header(props) {
   return (
     <div>
       <Link to="/">
-        list
+        List
       </Link>
       <Link to="/create">
-        create
+        Create
+      </Link>
+      <Link to="/auth">
+        Login
       </Link>
     </div>
   )
