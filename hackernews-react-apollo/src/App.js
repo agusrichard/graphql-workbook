@@ -1,14 +1,18 @@
 import React from 'react';
+import { Switch, Route } from 'react-router-dom'
 import LinkList from './components/LinkList'
 import CreateLink from './components/CreateLink'
+import Header from './components/Header'
 
 
 function App() {
   return (
     <div className="App">
-      <h1>Sekardayu Hana Pradiani</h1>
-      <LinkList />
-      <CreateLink />
+      <Header />    
+      <Switch>
+        <Route exact path="/" component={LinkList} />
+        <Route exact path="/create" component={CreateLink} />
+      </Switch>
     </div>
   );
 }

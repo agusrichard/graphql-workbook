@@ -20,6 +20,7 @@ export default function CreateLink(props) {
     event.preventDefault()
     console.log(url, description)
     postMutation()
+    props.history.push('/')
   }
 
   return (
