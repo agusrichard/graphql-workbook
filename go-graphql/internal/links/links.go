@@ -1,6 +1,7 @@
 package links
 
 import (
+	"fmt"
 	"go-graphql/config"
 	"go-graphql/internal/users"
 )
@@ -27,4 +28,32 @@ func (link Link) Save() (int, error) {
 	}
 
 	return id, err
+}
+
+func GetAll() []Link {
+	var links []Link
+	rows, err := config.DB.Query(`
+		SELECT id, title, address FROM Links;
+	`)
+
+	if err != nil {
+		fmt.Println("Error", err)
+	} else {
+		var link Link
+		defer rows.Close()
+		for rows.Next() {
+			err = rows.Scan(&(link.ID), &(link.Title), &(link.Address))
+			if err != nil {
+				fmt.Println("Error", err)
+			} else {
+				links = append(links, Link{
+					ID:      link.ID,
+					Title:   link.Title,
+					Address: link.Address,
+				})
+			}
+		}
+	}
+
+	return links
 }
