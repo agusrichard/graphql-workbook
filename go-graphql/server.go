@@ -1,6 +1,7 @@
 package main
 
 import (
+	"go-graphql/config"
 	"go-graphql/graph"
 	"go-graphql/graph/generated"
 	"log"
@@ -18,6 +19,8 @@ func main() {
 	if port == "" {
 		port = defaultPort
 	}
+
+	config.ConnectDB()
 
 	srv := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: &graph.Resolver{}}))
 
