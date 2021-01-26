@@ -8,17 +8,28 @@ import (
 	"fmt"
 	"go-graphql/graph/generated"
 	"go-graphql/graph/model"
+	"go-graphql/internal/auth"
 	"go-graphql/internal/links"
 	"go-graphql/internal/users"
 	"go-graphql/pkg/jwt"
 )
 
 func (r *mutationResolver) CreateLink(ctx context.Context, input model.NewLink) (*model.Link, error) {
+	user := auth.ForContext(ctx)
+	if user == nil {
+		return &model.Link{}, fmt.Errorf("Access denied")
+	}
+
 	var link links.Link
 	link.Title = input.Title
 	link.Address = input.Address
+	link.User = user
 	linkID, err := link.Save()
-	return &model.Link{ID: fmt.Sprintf("%d", linkID), Title: link.Title, Address: link.Address}, err
+	graphqlUser := &model.User{
+		ID:   user.ID,
+		Name: user.Username,
+	}
+	return &model.Link{ID: fmt.Sprintf("%d", linkID), Title: link.Title, Address: link.Address, User: graphqlUser}, err
 }
 
 func (r *mutationResolver) CreateUser(ctx context.Context, input model.NewUser) (string, error) {
@@ -34,11 +45,31 @@ func (r *mutationResolver) CreateUser(ctx context.Context, input model.NewUser) 
 }
 
 func (r *mutationResolver) Login(ctx context.Context, input model.Login) (string, error) {
-	panic(fmt.Errorf("not implemented"))
+	var user users.User
+	user.Username = input.Username
+	user.Password = input.Password
+	correct := user.Authenticate()
+	if !correct {
+		return "", &users.WrongUsernameOrPasswordError{}
+	}
+	token, err := jwt.GenerateToken(user.Username)
+	if err != nil {
+		return "", err
+	}
+	return token, nil
 }
 
 func (r *mutationResolver) RefreshToken(ctx context.Context, input model.RefreshTokenInput) (string, error) {
-	panic(fmt.Errorf("not implemented"))
+	username, err := jwt.ParseToken(input.Token)
+	if err != nil {
+		return "", fmt.Errorf("Access denied")
+	}
+	token, err := jwt.GenerateToken(username)
+	if err != nil {
+		return "", err
+	}
+
+	return token, nil
 }
 
 func (r *queryResolver) Links(ctx context.Context) ([]*model.Link, error) {
@@ -46,10 +77,14 @@ func (r *queryResolver) Links(ctx context.Context) ([]*model.Link, error) {
 	var dbLinks []links.Link
 	dbLinks = links.GetAll()
 	for _, link := range dbLinks {
+		graphqlUser := &model.User{
+			Name: link.User.Username,
+		}
 		resultLinks = append(resultLinks, &model.Link{
 			ID:      link.ID,
 			Title:   link.Title,
 			Address: link.Address,
+			User:    graphqlUser,
 		})
 	}
 

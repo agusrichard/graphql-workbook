@@ -18,8 +18,8 @@ func (link Link) Save() (int, error) {
 	tx, err := config.DB.Begin()
 
 	err = tx.QueryRow(`
-		INSERT INTO Links(Title, Address) VALUES ($1, $2) RETURNING id;
-	`, link.Title, link.Address).Scan(&id)
+		INSERT INTO Links(title, address, userid) VALUES ($1, $2, $3) RETURNING id;
+	`, link.Title, link.Address, link.User.ID).Scan(&id)
 
 	if err != nil {
 		tx.Rollback()
@@ -33,16 +33,34 @@ func (link Link) Save() (int, error) {
 func GetAll() []Link {
 	var links []Link
 	rows, err := config.DB.Query(`
-		SELECT id, title, address FROM Links;
+		SELECT
+			l.id,
+			l.title,
+			l.address,
+			l.userid,
+			u.username,
+			u.password
+		FROM Links l
+		JOIN Users u
+		ON l.userid = u.id;
 	`)
 
 	if err != nil {
 		fmt.Println("Error", err)
 	} else {
 		var link Link
+		var userId int
+		var username, password string
 		defer rows.Close()
 		for rows.Next() {
-			err = rows.Scan(&(link.ID), &(link.Title), &(link.Address))
+			err = rows.Scan(
+				&(link.ID),
+				&(link.Title),
+				&(link.Address),
+				&userId,
+				&username,
+				&password,
+			)
 			if err != nil {
 				fmt.Println("Error", err)
 			} else {
@@ -50,6 +68,10 @@ func GetAll() []Link {
 					ID:      link.ID,
 					Title:   link.Title,
 					Address: link.Address,
+					User: &users.User{
+						Username: username,
+						Password: password,
+					},
 				})
 			}
 		}
