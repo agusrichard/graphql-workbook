@@ -9,6 +9,8 @@ import (
 	"go-graphql/graph/generated"
 	"go-graphql/graph/model"
 	"go-graphql/internal/links"
+	"go-graphql/internal/users"
+	"go-graphql/pkg/jwt"
 )
 
 func (r *mutationResolver) CreateLink(ctx context.Context, input model.NewLink) (*model.Link, error) {
@@ -20,7 +22,15 @@ func (r *mutationResolver) CreateLink(ctx context.Context, input model.NewLink) 
 }
 
 func (r *mutationResolver) CreateUser(ctx context.Context, input model.NewUser) (string, error) {
-	panic(fmt.Errorf("not implemented"))
+	var user users.User
+	user.Username = input.Username
+	user.Password = input.Password
+	user.Create()
+	token, err := jwt.GenerateToken(user.Username)
+	if err != nil {
+		return "", err
+	}
+	return token, err
 }
 
 func (r *mutationResolver) Login(ctx context.Context, input model.Login) (string, error) {
